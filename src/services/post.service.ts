@@ -2,6 +2,19 @@ import {
     Post, 
     CreatePostInput
 } from '../contracts';
+import {
+    events,
+} from '../events';
+import {
+    transporter,
+} from '../config';
+
+import { HttpMethods } from 'core-framework';
+
+const {
+    EVENT_CREATE_POST_V1,
+} = events;
+
 export class PostService {
 
     static create(): PostService {
@@ -52,17 +65,21 @@ export class PostService {
         `;
     }
 
-    createPost({
+    public  async createPost({
         metadata,
         params,
     }: {
         metadata: Record<string, unknown>,
         params: CreatePostInput,
-    }): string {
-        return 'Post created';
+    }): Promise<Post> {
+        const {
+            data,
+        } = await transporter.emit(EVENT_CREATE_POST_V1, HttpMethods.POST);
+        //@ts-ignore
+        return data;
     }
 
-    posts({
+    public posts({
         metadata,
     }: {
         metadata: Record<string, unknown>,
