@@ -1,20 +1,25 @@
-import { GatewayBuilder } from '../gateway';
+import { 
+    GatewayBuilder,
+    GatewayTypes,
+} from 'core-framework';
 import { PostService } from './post.service';
 const postService = PostService.create();
 
 
-const service_query: unknown[] = [
+const services_query: Record<string, any>[] = [
     postService.getQuery()
 ];
-const service_mutation: unknown[] = [
+const services_mutation: Record<string, any>[] = [
     postService.getMutation()
 ];
-const service_schemas: string[] = [
+const schemas: string[] = [
     postService.getSchema(),
 ];
 
 export const buidServices = GatewayBuilder.create(
-    service_query,
-    service_mutation,
-    service_schemas,
+    GatewayTypes.GraphQL, {
+        services_query,
+        services_mutation,
+        schemas,
+    },
 );
