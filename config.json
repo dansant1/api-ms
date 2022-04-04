@@ -1,0 +1,9 @@
+{
+    "config": [
+        {
+            "ms": "post",
+            "version": "1",
+            "active": true
+        }
+    ]
+}

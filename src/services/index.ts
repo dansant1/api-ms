@@ -3,8 +3,11 @@ import {
     GatewayTypes,
 } from 'core-framework';
 import { PostService } from './post.service';
-const postService = PostService.create();
 
+const postService = PostService.create({
+    name: 'post',
+    version: '1',
+});
 
 const services_query: Record<string, any>[] = [
     postService.getQuery()

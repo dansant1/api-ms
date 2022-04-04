@@ -9,7 +9,7 @@ import {
     transporter,
 } from '../config';
 
-import { HttpMethods } from 'core-framework';
+import { HttpMethods, Logger } from 'core-framework';
 
 const {
     EVENT_CREATE_POST_V1,
@@ -17,8 +17,45 @@ const {
 
 export class PostService {
 
-    static create(): PostService {
-        return new PostService();
+    #name: string;
+    #version: string;
+
+    constructor(
+        name: string, 
+        version: string
+    ) {
+        this.setName(name);
+        this.setVersion(version);
+    }
+
+    static create(data: {
+        name: string,
+        version: string,
+    }): PostService {
+        const {
+            name,
+            version,
+        } = data;
+        return new PostService(
+            name, 
+            version
+        );
+    }
+
+    setName(name: string): void {
+        this.#name = name;
+    }
+
+    getName(): string {
+        return this.#name;
+    }
+
+    setVersion(version: string): void {
+        this.#version = version;
+    }
+
+    getVersion(): string {
+        return this.#version;
     }
 
     getQuery() {
@@ -48,7 +85,6 @@ export class PostService {
             }
 
             type Post {
-                id: ID!
                 title: String!
                 body: String!
                 category: String!
@@ -56,7 +92,6 @@ export class PostService {
             }
 
             input CreatePostInput {
-                id: ID
                 title: String!
                 body: String!
                 category: String!
@@ -72,6 +107,8 @@ export class PostService {
         metadata: Record<string, unknown>,
         params: CreatePostInput,
     }): Promise<Post> {
+        Logger.warn(`DATA=${metadata}`);
+        Logger.warn(`DATA=${params}`);
         const {
             data,
         } = await transporter.emit(EVENT_CREATE_POST_V1, HttpMethods.POST);
