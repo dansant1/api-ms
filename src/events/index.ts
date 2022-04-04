@@ -1,4 +1,4 @@
-const DB_ENGINES = 'http://localhost:8000/';
+const DB_ENGINES = process.env.DB_ENGINES_URL;
 
 export const events = {
     EVENT_CREATE_POST_V1: `${DB_ENGINES}post`,

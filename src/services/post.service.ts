@@ -107,8 +107,8 @@ export class PostService {
         metadata: Record<string, unknown>,
         params: CreatePostInput,
     }): Promise<Post> {
-        Logger.warn(`DATA=${metadata}`);
-        Logger.warn(`DATA=${params}`);
+        Logger.warn(`DATA=${JSON.stringify(metadata)}`);
+        Logger.warn(`DATA=${JSON.stringify(params)}`);
         const {
             data,
         } = await transporter.emit(EVENT_CREATE_POST_V1, HttpMethods.POST);
