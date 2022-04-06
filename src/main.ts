@@ -9,7 +9,7 @@ import {
     ConfigType,
 } from 'core-framework';
 import { 
-    buidServices 
+    services, 
 } from './services';
 
 export const config = EnvConfigFactory.create({
@@ -17,16 +17,22 @@ export const config = EnvConfigFactory.create({
 });
 console.log('NODE_ENV=', config.get('NODE_ENV'));
 
-const server = new ServerBuilder();
-server.setPort(9000);
-server.setProtolType(Protocols.HTTP);
-server.setServerType(Platforms.FASTIFY);
-server.setGatewayType(GatewayTypes.GraphQL);
-server.setEntryType(buidServices.buildGraphQL() as ConfigGraphQL);
-server.setConfig({ logger: false });
+const runner = async () => {
+    for (const service of services) {
+        const server = new ServerBuilder();
+        server.setPort(service.instance.getPort());
+        server.setPrefix(`/api/${service.instance.getName()}`);
+        server.setProtolType(Protocols.HTTP);
+        server.setServerType(Platforms.FASTIFY);
+        server.setGatewayType(GatewayTypes.GraphQL);
+        server.setEntryType(service.builder.buildGraphQL() as ConfigGraphQL);
+        server.setConfig({ 
+            logger: false,
+        });
+        const app = AppFactory.create(server);
+        await app.listen('0.0.0.0');
+    }
+}
 
-const app = AppFactory.create(server);
+runner();
 
-console.log('APP=', app);
-
-app.listen();

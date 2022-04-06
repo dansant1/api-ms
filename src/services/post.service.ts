@@ -19,26 +19,32 @@ export class PostService {
 
     #name: string;
     #version: string;
+    #port: number;
 
     constructor(
         name: string, 
-        version: string
+        version: string,
+        port: number,
     ) {
         this.setName(name);
         this.setVersion(version);
+        this.setPort(port);
     }
 
     static create(data: {
         name: string,
         version: string,
+        port: number,
     }): PostService {
         const {
             name,
             version,
+            port,
         } = data;
         return new PostService(
             name, 
-            version
+            version,
+            port,
         );
     }
 
@@ -48,6 +54,14 @@ export class PostService {
 
     getName(): string {
         return this.#name;
+    }
+
+    setPort(port: number): void {
+        this.#port = port;
+    }
+
+    getPort(): number {
+        return this.#port;
     }
 
     setVersion(version: string): void {
