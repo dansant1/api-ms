@@ -1,1 +1,2 @@
-export * from './post.dto';
+export * from './product.dto';
+export * from './period.dto';

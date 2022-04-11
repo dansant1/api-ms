@@ -1,1 +1,1 @@
-export * from './createPostInput.dto';
+export * from './createProductInput.dto';

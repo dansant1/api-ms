@@ -2,27 +2,27 @@ import {
     GatewayBuilder,
     GatewayTypes,
 } from 'core-framework';
-import { PostService } from './post.service';
+import { ProductService } from './product.service';
 
-const postService = PostService.create({
-    name: 'post',
+const productService = ProductService.create({
+    name: 'product',
     version: '1',
     port: 9000,
 });
 
 const services_query: Record<string, any>[] = [
-    postService.getQuery()
+    productService.getQuery()
 ];
 const services_mutation: Record<string, any>[] = [
-    postService.getMutation()
+    productService.getMutation()
 ];
 const schemas: string[] = [
-    postService.getSchema(),
+    productService.getSchema(),
 ];
 
 export const services = [
     {   
-        ms: 'post',
+        ms: 'product',
         builder: GatewayBuilder.create(
             GatewayTypes.GraphQL, {
                 services_query,
@@ -30,6 +30,6 @@ export const services = [
                 schemas,
             },
         ),
-        instance: postService,
+        instance: productService,
     }
 ];
