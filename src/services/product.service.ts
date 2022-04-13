@@ -13,7 +13,7 @@ import {
 import { HttpMethods, Logger } from 'core-framework';
 
 const {
-    EVENT_CREATE_POST_V1,
+    EVENT_CREATE_PRODUCT_V1,
 } = events;
 
 export class ProductService {
@@ -245,12 +245,16 @@ export class ProductService {
         }]
     }
 
-    public saveProduct({
+    public async saveProduct({
         metadata,
     }: {
         metadata: Record<string, unknown>,
         params: CreateProducInput,
-    }): Product {
+    }): Promise<Product> {
+        const {
+            data,
+        } = await transporter.emit(EVENT_CREATE_PRODUCT_V1,);
+        Logger.warn(`DB-ENGINES response=${data}`);
         return {
             id: 1,
             code: '001',
