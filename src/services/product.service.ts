@@ -1,5 +1,5 @@
 import {
-    Product, 
+    Product,
     CreateProducInput,
     Period,
 } from '../contracts';
@@ -23,7 +23,7 @@ export class ProductService {
     #port: number;
 
     constructor(
-        name: string, 
+        name: string,
         version: string,
         port: number,
     ) {
@@ -43,7 +43,7 @@ export class ProductService {
             port,
         } = data;
         return new ProductService(
-            name, 
+            name,
             version,
             port,
         );
@@ -74,12 +74,12 @@ export class ProductService {
     }
 
     getQuery() {
-        return {
-            getProductFromMDMBySKU: this.getProductFromMDMBySKU,
-            getProductFromMDMByCUC: this.getProductFromMDMByCUC,
-            getProducts: this.getProducts,
-            getDatesByCampaign: this.getDatesByCampaign,
-        }
+        return [
+            { getProductFromMDMBySKU: this.getProductFromMDMBySKU },
+            { getProductFromMDMByCUC: this.getProductFromMDMByCUC },
+            { getProducts: this.getProducts },
+            { getDatesByCampaign: this.getDatesByCampaign },
+        ]
     }
 
     getMutation() {
@@ -146,7 +146,7 @@ export class ProductService {
         `;
     }
 
-    public  async getProductFromMDMBySKU({
+    public async getProductFromMDMBySKU({
         metadata,
         params,
     }: {

@@ -10,9 +10,9 @@ const productService = ProductService.create({
     port: 9000,
 });
 
-const services_query: Record<string, any>[] = [
+const services_query: Record<string, any>[] = 
     productService.getQuery()
-];
+;
 const services_mutation: Record<string, any>[] = [
     productService.getMutation()
 ];
