@@ -92,13 +92,21 @@ export class ProductService {
         return this.getType();
     }
 
+    
     getType() {
         return `
             type Query {
-                getProductFromMDMBySKU(sku: String!): Product!
-                getProductFromMDMByCUC(cuc: String!): Product!
+                getProductFromMDMBySKU(country_code: String!, country_id: String!, sku: String!): Product!
+                getProductFromMDMByCUC(country_code: String!, country_id: String!, cuc: String!): Product!
+                getDatesByCampaign(data: InputSchedule): DatesByCampaign!
                 getProducts(limit: Int!, offset: Int): [Product]!
-                getDatesByCampaign: [Period]!
+            }
+
+            type DatesByCampaign {
+                country_code: String!
+                country_id: String!
+                sku: String!
+                schedule: [Schedule]
             }
 
             type Product {
@@ -109,11 +117,29 @@ export class ProductService {
                 photo_url: String
                 has_variants: Boolean
                 active_sku_list: String
-                is_active: Boolean!
-                category_id: Int
-                brand_id: Int
-                business_unit_id: Int
-                tags: String
+                is_active: Boolean
+                category_id: Int!
+                brand_id: Int!
+                business_unit_id: Int!
+                tags: String!
+                skus: [SKU]
+            }
+
+            type SKU {
+                code: String!
+                name: String!
+                schedule: [Schedule]
+            }
+
+            type Schedule {
+                dispo: CampaignDetail
+                intro: CampaignDetail
+                disco: CampaignDetail
+            }
+
+            type CampaignDetail {
+                campaign: String
+                date: String
             }
 
             type Period {
@@ -143,6 +169,24 @@ export class ProductService {
                 business_unit_id: Int
                 tags: String
             }
+
+            input InputSchedule {
+                country_code: String!
+                country_id: String!
+                sku: String!
+                schedule: [ISchedule]
+            }
+
+            input ISchedule {
+                dispo: ICampaignDetail
+                intro: ICampaignDetail
+                disco: ICampaignDetail
+            }
+
+            input ICampaignDetail {
+                campaign: String
+                date: String
+            }
         `;
     }
 
@@ -154,7 +198,6 @@ export class ProductService {
         params: any,
     }): Promise<Product> {
         Logger.warn(`DATA=${JSON.stringify(metadata)}`);
-        Logger.warn(`DATA=${JSON.stringify(params)}`);
         return {
             id: 1,
             code: '001',
@@ -167,15 +210,42 @@ export class ProductService {
             category_id: 3,
             brand_id: 2,
             business_unit_id: 1,
-            tags: 'tag_1, tag_2'
+            tags: 'tag_1, tag_2',
+            skus: 
+            [
+                {
+                    code: 'SK0001',
+                    name: 'sku_01',
+                    schedule: 
+                    [
+                        {
+                            dispo: {
+                                campaign: 'dispo_camp_01',
+                                date: new Date().toISOString()
+                            },
+                            intro: {
+                                campaign: 'intro_camp_01',
+                                date: new Date().toISOString(),
+                            },
+                            disco: {
+                                campaign: 'disco_camp_01',
+                                date: new Date().toISOString(),
+                            }
+                        }
+                    ]
+                }
+            ]
         };
     }
 
-    public getProductFromMDMByCUC({
+    public async getProductFromMDMByCUC({
         metadata,
+        params,
     }: {
         metadata: Record<string, unknown>,
-    }): Product {
+        params: any,
+    }): Promise<Product> {
+        Logger.warn(`DATA=${JSON.stringify(metadata)}`);
         return {
             id: 1,
             code: '001',
@@ -188,7 +258,31 @@ export class ProductService {
             category_id: 3,
             brand_id: 2,
             business_unit_id: 1,
-            tags: 'tag_1, tag_2'
+            tags: 'tag_1, tag_2',
+            skus: 
+            [
+                {
+                    code: 'SK0001',
+                    name: 'sku_01',
+                    schedule: 
+                    [
+                        {
+                            dispo: {
+                                campaign: 'dispo_camp_01',
+                                date: new Date().toISOString()
+                            },
+                            intro: {
+                                campaign: 'intro_camp_01',
+                                date: new Date().toISOString(),
+                            },
+                            disco: {
+                                campaign: 'disco_camp_01',
+                                date: new Date().toISOString(),
+                            }
+                        }
+                    ]
+                }
+            ]
         };
     }
 
@@ -233,16 +327,33 @@ export class ProductService {
         metadata,
     }: {
         metadata: Record<string, unknown>,
-    }): Period[] {
-        return [{
-            id: 1,
-            code: '001',
-            fan_date: '10/02/2022',
-            start_date: '11/02/2022',
-            end_date: '12/02/2022',
-            country_id: '3',
-            channel_id: '2'
-        }]
+    }) {
+        Logger.warn(`DATA=${JSON.stringify(metadata)}`);
+        return {
+            //@ts-ignore
+            country_code: metadata?.data?.country_code,
+            //@ts-ignore
+            country_id: metadata?.data?.country_id,
+            //@ts-ignore
+            sku: metadata?.data?.sku,
+            schedule: 
+                [
+                    {
+                        dispo: {
+                            campaign: 'dispo_camp_01',
+                            date: new Date().toISOString()
+                        },
+                        intro: {
+                            campaign: 'intro_camp_01',
+                            date: new Date().toISOString(),
+                        },
+                        disco: {
+                            campaign: 'disco_camp_01',
+                            date: new Date().toISOString(),
+                        }
+                    }
+                ]
+        }
     }
 
     public async saveProduct({

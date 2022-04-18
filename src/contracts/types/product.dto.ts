@@ -11,4 +11,28 @@ export interface Product {
     brand_id: number,
     business_unit_id: number,
     tags: string,
+    skus?: SKUs[]
 }
+
+export interface SKUs {
+        code: string,
+        name: string,
+        schedule: Schedules[]
+}
+
+export interface Schedules {
+    dispo: {
+        campaign: string,
+        date: string
+    },
+    intro: {
+        campaign: string,
+        date: string,
+    }
+    disco: {
+        campaign: string,
+        date: string,
+    }
+}
+
+
