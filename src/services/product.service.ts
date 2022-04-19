@@ -128,12 +128,23 @@ export class ProductService {
                 tags: String!
                 skus: [SKU]
                 category: Category!
+                brand: Brand
+                business_unit: BusinessUnit
             }
 
             type Category {
+                id: String
                 name: String
-                brand: String
-                business_unit: String
+            }
+
+            type Brand {
+                id: String
+                name: String
+            }
+
+            type BusinessUnit {
+                id: String
+                name: String
             }
 
             type SKU {
@@ -283,9 +294,16 @@ export class ProductService {
                 }
             ],
             category: {
+                id: papiData.codcategoria,
                 name: papiData.descategoria,
-                brand: papiData.desmarca,
-                business_unit: papiData.desunidadnegocio,
+            },
+            brand: {
+                id: papiData.codmarca,
+                name: papiData.desmarca,
+            },
+            business_unit: {
+                id: papiData.codunidadnegocio,
+                name: papiData.desunidadnegocio
             }
         };
     }

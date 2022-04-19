@@ -13,6 +13,8 @@ export interface Product {
     tags: string,
     skus?: SKUs[],
     category?: Record<string, string>,
+    brand?: Record<string, string>,
+    business_unit?: Record<string, string>,
 }
 
 export interface SKUs {
