@@ -160,7 +160,8 @@ export class ProductService {
             }
 
             type CampaignDetail {
-                campaign: String
+                campaign_year: String
+                campaign_period: String
                 date: String
             }
 
@@ -258,16 +259,18 @@ export class ProductService {
         dataCountry.forEach(element => {
             schedule.push({
                 dispo: {
-                    campaign: element.campanadispo,
+                    campaign_year: element.campanadispo.substring(0, 4),
+                    campaign_period: element.campanadispo.slice(-2),
                     date: new Date().toISOString(),
                 },
                 intro: {
-                    //TODO convertir a fromato year y campaign
-                    campaign: element.campanadispo,
+                    campaign_year: element.campanadispo.substring(0, 4),
+                    campaign_period: element.campanadispo.slice(-2),
                     date: new Date().toISOString(),
                 },
                 disco: {
-                    campaign: element.campanadescontinuacion,
+                    campaign_year: element.campanadescontinuacion.substring(0, 4),
+                    campaign_period: element.campanadescontinuacion.slice(-2),
                     date: new Date().toISOString(),
                 }
             });
