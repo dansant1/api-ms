@@ -1,7 +1,8 @@
+import { gql } from 'graphql-request';
+import { Logger } from 'core-framework';
 import {
     Product, 
     CreateProducInput,
-    Period,
 } from '../contracts';
 import {
     events,
@@ -9,8 +10,9 @@ import {
 import {
     transporter,
 } from '../config';
-
-import { HttpMethods, Logger } from 'core-framework';
+import {
+    PAPInstance,
+} from '../managers';
 
 const {
     EVENT_CREATE_PRODUCT_V1,
@@ -48,6 +50,8 @@ export class ProductService {
             port,
         );
     }
+
+    
 
     setName(name: string): void {
         this.#name = name;
@@ -194,45 +198,96 @@ export class ProductService {
         metadata,
         params,
     }: {
-        metadata: Record<string, unknown>,
+        metadata: Record<string, any>,
         params: any,
     }): Promise<Product> {
         Logger.warn(`DATA=${JSON.stringify(metadata)}`);
+        const {
+            //@ts-ignore
+            access_token,
+        } = await PAPInstance.getToken();
+        const query = gql`{
+            list (codsap: ["${metadata?.sku}"]) {
+                codsap,
+                codcategoria,
+                codmarca,
+                codproductogenerico,
+                codunidadnegocio,
+                desproductosap,
+                desnombreproductowebredes,
+                desresumen,
+                deswebredes,
+                desmarca,
+                desunidadnegocio,
+                descategoria, 
+                detallepais {  
+                    codpais,
+                    campanadispo,
+                    campanadescontinuacion,
+                    campanaintro
+                },
+                fotoproductofondoblancowebredes
+            }
+        }`;
+        const response = await PAPInstance.getCodSapClient(access_token).request(query);
+        console.log('RESPONSE=', response);
+        const papiData = response.list[0];
+        const dataCountry = papiData.detallepais.filter((detail) => detail.codpais === metadata?.country_code);
+        const schedule = [];
+
+        dataCountry.forEach(element => {
+            schedule.push({
+                dispo: {
+                    campaign: element.campanadispo,
+                    date: new Date().toISOString(),
+                },
+                intro: {
+                    //TODO convertir a fromato year y campaign
+                    campaign: element.campanadispo,
+                    date: new Date().toISOString(),
+                },
+                disco: {
+                    campaign: element.campanadescontinuacion,
+                    date: new Date().toISOString(),
+                }
+            });
+        });
         return {
-            id: 1,
-            code: '001',
-            name: 'P1',
-            description: 'descr',
-            photo_url: 'www.photo.com',
-            has_variants: true,
-            active_sku_list: 'sku',
+            id: metadata?.sku,
+            code: metadata?.sku,
+            name: papiData.desnombreproductowebredes,
+            description: papiData.deswebredes,
+            photo_url: papiData.fotoproductofondoblancowebredes[0],
+            has_variants: papiData.codproductogenerico === '' ? false : true,
+            active_sku_list: '',
             is_active: true,
-            category_id: 3,
-            brand_id: 2,
-            business_unit_id: 1,
-            tags: 'tag_1, tag_2',
+            category_id: papiData.codcategoria,
+            brand_id: papiData.codmarca,
+            business_unit_id: papiData.codunidadnegocio,
+            tags: '',
             skus: 
             [
                 {
-                    code: 'SK0001',
-                    name: 'sku_01',
-                    schedule: 
-                    [
-                        {
-                            dispo: {
-                                campaign: 'dispo_camp_01',
-                                date: new Date().toISOString()
-                            },
-                            intro: {
-                                campaign: 'intro_camp_01',
-                                date: new Date().toISOString(),
-                            },
-                            disco: {
-                                campaign: 'disco_camp_01',
-                                date: new Date().toISOString(),
-                            }
-                        }
-                    ]
+                    code: papiData.codsap,
+                    name: papiData.desnombreproductowebredes,
+                    schedule
+                    
+                    // [
+                    //     {
+                    //         dispo: {
+                    //             campaign: 'dispo_camp_01',
+                    //             date: new Date().toISOString()
+                    //         },
+                    //         intro: {
+                    //             campaign: 'intro_camp_01',
+                    //             date: new Date().toISOString(),
+                    //         },
+                    //         disco: {
+                    //             campaign: 'disco_camp_01',
+                    //             date: new Date().toISOString(),
+                    //         }
+                    //     }
+                    // ]
                 }
             ]
         };
