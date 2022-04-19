@@ -127,6 +127,13 @@ export class ProductService {
                 business_unit_id: Int!
                 tags: String!
                 skus: [SKU]
+                category: Category!
+            }
+
+            type Category {
+                name: String
+                brand: String
+                business_unit: String
             }
 
             type SKU {
@@ -216,6 +223,8 @@ export class ProductService {
                 desproductosap,
                 desnombreproductowebredes,
                 desresumen,
+                descategoria,
+                desmarca,
                 deswebredes,
                 desmarca,
                 desunidadnegocio,
@@ -271,25 +280,13 @@ export class ProductService {
                     code: papiData.codsap,
                     name: papiData.desnombreproductowebredes,
                     schedule
-                    
-                    // [
-                    //     {
-                    //         dispo: {
-                    //             campaign: 'dispo_camp_01',
-                    //             date: new Date().toISOString()
-                    //         },
-                    //         intro: {
-                    //             campaign: 'intro_camp_01',
-                    //             date: new Date().toISOString(),
-                    //         },
-                    //         disco: {
-                    //             campaign: 'disco_camp_01',
-                    //             date: new Date().toISOString(),
-                    //         }
-                    //     }
-                    // ]
                 }
-            ]
+            ],
+            category: {
+                name: papiData.descategoria,
+                brand: papiData.desmarca,
+                business_unit: papiData.desunidadnegocio,
+            }
         };
     }
 

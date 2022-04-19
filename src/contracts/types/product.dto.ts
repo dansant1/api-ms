@@ -11,7 +11,8 @@ export interface Product {
     brand_id: number,
     business_unit_id: number,
     tags: string,
-    skus?: SKUs[]
+    skus?: SKUs[],
+    category?: Record<string, string>,
 }
 
 export interface SKUs {
