@@ -264,8 +264,8 @@ export class ProductService {
                     date: new Date().toISOString(),
                 },
                 intro: {
-                    campaign_year: element.campanadispo.substring(0, 4),
-                    campaign_period: element.campanadispo.slice(-2),
+                    campaign_year: element.campanaintro.slice(-4),
+                    campaign_period: element.campanaintro.substring(0, 2),
                     date: new Date().toISOString(),
                 },
                 disco: {
