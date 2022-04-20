@@ -8,8 +8,8 @@ import {
     events,
 } from '../events';
 import {
-    transporter,
-} from '../config';
+    ProductManagerInstance,
+} from '../managers';
 import {
     PAPInstance,
 } from '../managers';
@@ -142,7 +142,22 @@ export class ProductService {
                 name: String
             }
 
+            input ICategory {
+                id: String
+                name: String
+            }
+
+            input IBrand {
+                id: String
+                name: String
+            }
+
             type BusinessUnit {
+                id: String
+                name: String
+            }
+
+            input IBusinessUnit {
                 id: String
                 name: String
             }
@@ -153,10 +168,22 @@ export class ProductService {
                 schedule: [Schedule]
             }
 
+            input ISKU {
+                code: String!
+                name: String!
+                schedule: [ISchedule]
+            }
+
             type Schedule {
                 dispo: CampaignDetail
                 intro: CampaignDetail
                 disco: CampaignDetail
+            }
+
+            input ICampaignDetail {
+                campaign_year: String
+                campaign_period: String
+                date: String
             }
 
             type CampaignDetail {
@@ -180,17 +207,22 @@ export class ProductService {
             }
 
             input CreateProducInput {
+                id: ID!
                 code: String!
                 name: String!
                 description: String!
                 photo_url: String
                 has_variants: Boolean
                 active_sku_list: String
-                is_active: Boolean!
-                category_id: Int
-                brand_id: Int
-                business_unit_id: Int
-                tags: String
+                is_active: Boolean
+                category_id: Int!
+                brand_id: Int!
+                business_unit_id: Int!
+                tags: String!
+                skus: [ISKU]
+                category: ICategory!
+                brand: IBrand!
+                business_unit: IBusinessUnit
             }
 
             input InputSchedule {
@@ -206,10 +238,6 @@ export class ProductService {
                 disco: ICampaignDetail
             }
 
-            input ICampaignDetail {
-                campaign: String
-                date: String
-            }
         `;
     }
 
@@ -477,23 +505,30 @@ export class ProductService {
         metadata: Record<string, unknown>,
         params: CreateProducInput,
     }): Promise<Product> {
-        const {
-            data,
-        } = await transporter.emit(EVENT_CREATE_PRODUCT_V1,);
-        Logger.warn(`DB-ENGINES response=${data}`);
+        Logger.warn(`DATA=${JSON.stringify(metadata.data)}`);
+        const input = metadata.data as any;
+        const productData = {
+            code: input?.code,
+            name: input?.name,
+            description: input?.description,
+            photo_url: input?.photo_url,
+            has_variants: input?.has_variants,
+            active_sku_list: input?.active_sku_list,
+            is_active: input?.is_active,
+            category_id: input?.category_id,
+            brand_id: input?.brand_id,
+            business_unit_id: input?.business_unit_id,
+            tags: input?.tags,
+        }
+        const skus = input?.skus || [];
+        const product = await ProductManagerInstance.create({
+            productData,
+            skus
+        });
         return {
-            id: 1,
-            code: '001',
-            name: 'P1',
-            description: 'descr',
-            photo_url: 'www.photo.com',
-            has_variants: true,
-            active_sku_list: 'sku',
-            is_active: true,
-            category_id: 3,
-            brand_id: 2,
-            business_unit_id: 1,
-            tags: 'tag_1, tag_2'
+            id: product[0],
+            ...productData,
+            ...skus,
         };
     }
 }
