@@ -255,7 +255,6 @@ export class ProductService {
         const papiData = response.list[0];
         const dataCountry = papiData.detallepais.filter((detail) => detail.codpais === metadata?.country_code);
         const schedule = [];
-
         dataCountry.forEach(element => {
             schedule.push({
                 dispo: {
@@ -319,43 +318,86 @@ export class ProductService {
         params: any,
     }): Promise<Product> {
         Logger.warn(`DATA=${JSON.stringify(metadata)}`);
+        const {
+            //@ts-ignore
+            access_token,
+        } = await PAPInstance.getToken();
+        const query = gql`{
+            listProductoGenerico (codproductogenerico: [ "${metadata?.cuc}"]) {
+                codsap,
+                codcategoria,
+                codcategoriaproductocon,
+                codproductogenerico,
+                desdefaultvariant,
+                fotopreviavideo,
+                desnombreproductowebredes,
+                deswebredes,
+                desmarca,
+                detallepais {
+                    codpais,
+                    campanadispo,
+                    campanapreventa,
+                    campanaintro,
+                    campanadescontinuacion,
+                    campanadescontinuaciondia
+                },
+                fotoproductofondoblancowebredes,
+                codunidadnegocio,
+                codcuc,
+                codmarca,
+                desnegocio
+            }
+            }`;
+        const response = await PAPInstance.getCodSapClient(access_token).request(query);
+        console.log('RESPONSE=', response);
+        const papiData = response.listProductoGenerico.length > 0 ? response.listProductoGenerico[0] : {};
+        const skuList = response.listProductoGenerico;
+        const sku = [];
+        
+        skuList.forEach(element => {
+            const dataCountry = element.detallepais.filter((detail) => detail.codpais === metadata?.country_code);
+            const schedule = [];
+            dataCountry.forEach(elemento => {
+                schedule.push({
+                    dispo: {
+                        campaign_year: elemento.campanadispo.substring(0, 4),
+                        campaign_period: elemento.campanadispo.slice(-2),
+                        date: new Date().toISOString(),
+                    },
+                    intro: {
+                        campaign_year: elemento.campanaintro.slice(-4),
+                        campaign_period: elemento.campanaintro.substring(0, 2),
+                        date: new Date().toISOString(),
+                    },
+                    disco: {
+                        campaign_year: elemento.campanadescontinuacion.substring(0, 4),
+                        campaign_period: elemento.campanadescontinuacion.slice(-2),
+                        date: new Date().toISOString(),
+                    }
+                });
+            });
+            sku.push({
+                code: element.codsap,
+                name: element.desnombreproductowebredes,
+                schedule,
+            })
+        });
         return {
-            id: 1,
-            code: '001',
-            name: 'P1',
-            description: 'descr',
-            photo_url: 'www.photo.com',
-            has_variants: true,
-            active_sku_list: 'sku',
+            //@ts-ignore
+            id: metadata?.cuc,
+            //@ts-ignore
+            code: metadata?.cuc,
+            name: papiData?.desnombreproductowebredes,
+            description: papiData?.deswebredes,
+            photo_url: papiData?.fotoproductofondoblancowebredes[0],
+            has_variants: papiData?.codproductogenerico === '' ? false : true,
+            active_sku_list: '',
             is_active: true,
-            category_id: 3,
-            brand_id: 2,
-            business_unit_id: 1,
-            tags: 'tag_1, tag_2',
-            skus: 
-            [
-                {
-                    code: 'SK0001',
-                    name: 'sku_01',
-                    schedule: 
-                    [
-                        {
-                            dispo: {
-                                campaign: 'dispo_camp_01',
-                                date: new Date().toISOString()
-                            },
-                            intro: {
-                                campaign: 'intro_camp_01',
-                                date: new Date().toISOString(),
-                            },
-                            disco: {
-                                campaign: 'disco_camp_01',
-                                date: new Date().toISOString(),
-                            }
-                        }
-                    ]
-                }
-            ]
+            category_id: papiData?.codcategoria,
+            brand_id: papiData?.codmarca,
+            business_unit_id: papiData?.codunidadnegocio,
+            tags: '',
+            skus: sku,
         };
     }
 
